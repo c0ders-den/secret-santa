@@ -36,6 +36,8 @@ dependencies {
   	implementation "org.hibernate:hibernate-envers"
 	implementation "org.apache.derby:derby:10.15.2.0"
 	implementation "org.apache.commons:commons-lang3"
+	implementation "com.fasterxml.jackson.core:jackson-databind"
+	implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
