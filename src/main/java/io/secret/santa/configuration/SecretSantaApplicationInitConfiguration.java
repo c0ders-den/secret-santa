@@ -25,4 +25,15 @@ import org.springframework.stereotype.Component;
 @Component
 public interface SecretSantaApplicationInitConfiguration {
 
+	/**
+	 * 
+	 * @return
+	 */
+	String getServerHost();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	int getServerPort();
 }

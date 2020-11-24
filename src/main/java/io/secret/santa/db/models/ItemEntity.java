@@ -16,9 +16,17 @@
  */
 package io.secret.santa.db.models;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.envers.Audited;
+import org.springframework.stereotype.Indexed;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +39,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Entity
+@Indexed
+@Table(name = "item")
+@Access(value = AccessType.FIELD)
+@Audited
 public class ItemEntity extends BaseEntity {
 
 	private static final long serialVersionUID = -3384693536938496092L;
@@ -38,10 +51,17 @@ public class ItemEntity extends BaseEntity {
 	@Getter
 	@Column(name = "item_id")
 	private String id = RandomStringUtils.randomAlphanumeric(11, 19);
+	
 	@Column(name = "name")
 	private String name;
-	@Column(name = "desc")
+	
+	@Column(name = "description")
 	private String description;
+	
 	@Column(name = "type")
 	private ItemType type;
+	
+	@ManyToOne
+	@JoinColumn(name = "box_id", nullable = false)
+	private BoxEntity box;
 }

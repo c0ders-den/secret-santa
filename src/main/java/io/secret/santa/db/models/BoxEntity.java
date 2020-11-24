@@ -18,10 +18,18 @@ package io.secret.santa.db.models;
 
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.envers.Audited;
+import org.springframework.stereotype.Indexed;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -34,6 +42,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Entity
+@Indexed
+@Table(name = "box")
+@Access(value = AccessType.FIELD)
+@Audited
 public class BoxEntity extends BaseEntity {
 
 	private static final long serialVersionUID = 8308518335693466222L;
@@ -41,8 +54,13 @@ public class BoxEntity extends BaseEntity {
 	@Getter
 	@Column(name = "box_id")
 	private String id = RandomStringUtils.randomAlphabetic(11, 19);
+	
 	@Column(name = "capacity")
 	private int capacity = 5;
-	@OneToMany
+	
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "box")
 	private List<ItemEntity> items;
+	
+	@OneToOne(mappedBy = "box")
+	private ParticipantEntity participant;
 }

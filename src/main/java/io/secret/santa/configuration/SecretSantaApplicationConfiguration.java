@@ -16,7 +16,18 @@
  */
 package io.secret.santa.configuration;
 
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.web.embedded.jetty.JettyServerCustomizer;
+import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import io.secret.santa.ApplicationDBInitializer;
 
 /**
  * @author Arpan Mukhopadhyay
@@ -25,4 +36,44 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SecretSantaApplicationConfiguration {
 
+	@Autowired
+	private ApplicationArguments args;
+	
+	@Bean
+	public SecretSantaApplicationInitConfiguration appInitConfig() {
+		SecretSantaApplicationInitConfiguration appInitConfig = new SecretSantaApplicationInitConfigurationImpl(args);
+		new ApplicationDBInitializer();
+		return appInitConfig;
+	}
+	
+	@Bean
+	public ConfigurableServletWebServerFactory factory(SecretSantaApplicationInitConfiguration appInitConfig) {
+		JettyServletWebServerFactory factory = new JettyServletWebServerFactory();
+		factory.addServerCustomizers(customizer(appInitConfig));
+		return factory;
+	}
+	
+	/**
+	 * 
+	 * @param appInitConfig
+	 * @return
+	 */
+	private JettyServerCustomizer customizer(SecretSantaApplicationInitConfiguration appInitConfig) {
+		JettyServerCustomizer customizer = new JettyServerCustomizer() {
+			@Override
+			public void customize(Server server) {
+				Connector simpleConnector = addConnectors(server, appInitConfig);
+				Connector[] connectors = new Connector[] {simpleConnector};
+				server.setConnectors(connectors);
+			}
+		};
+		return customizer;
+	}
+	
+	
+	private Connector addConnectors(Server server, SecretSantaApplicationInitConfiguration appInitConfig) {
+		ServerConnector httpConnector = new ServerConnector(server);
+		httpConnector.setPort(appInitConfig.getServerPort());
+		return httpConnector;
+	}
 }

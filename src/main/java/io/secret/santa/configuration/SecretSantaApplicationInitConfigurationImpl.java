@@ -51,11 +51,7 @@ public class SecretSantaApplicationInitConfigurationImpl implements SecretSantaA
 	 */
 	public SecretSantaApplicationInitConfigurationImpl(ApplicationArguments args) {
 		long start = System.nanoTime();
-		if (null == args || args.getOptionNames().size() == 0) {
-			loadDefaultProperties();
-		} else {
-			loadProperties(args);
-		}
+		loadProperties(args);
 		long tt = System.nanoTime() - start;
 		logger.info("Configuration loaded in {} ms", TimeUnit.MILLISECONDS.convert(tt, TimeUnit.NANOSECONDS));
 	}
@@ -68,8 +64,8 @@ public class SecretSantaApplicationInitConfigurationImpl implements SecretSantaA
 	private void loadProperties(ApplicationArguments args) {
 		List<String> configFileOption = args.getOptionValues("config");
 		if (null == configFileOption || configFileOption.size() == 0) {
-			logger.error("Please provide a config file after --config or remove the --config option to run the server with default host and port");
-			throw new IllegalConfigurationException("Invalid value for --config option.");
+			loadDefaultProperties();
+			return;
 		}
 		String configFileName = configFileOption.get(0);
 		if (null == configFileName || configFileName.isBlank()) {

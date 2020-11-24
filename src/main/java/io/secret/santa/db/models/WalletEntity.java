@@ -16,9 +16,16 @@
  */
 package io.secret.santa.db.models;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.hibernate.envers.Audited;
+import org.springframework.stereotype.Indexed;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +38,11 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Entity
+@Indexed
+@Table(name = "wallet")
+@Access(value = AccessType.FIELD)
+@Audited
 public class WalletEntity extends BaseEntity {
 
 	private static final long serialVersionUID = 2063490249301211941L;
@@ -48,4 +60,7 @@ public class WalletEntity extends BaseEntity {
 	//Secret santa key. Used to buy exclusive items.
 	@Column(name = "keys")
 	private int keys = 0;
+	
+	@OneToOne(mappedBy = "wallet")
+	private ParticipantEntity participant;
 }

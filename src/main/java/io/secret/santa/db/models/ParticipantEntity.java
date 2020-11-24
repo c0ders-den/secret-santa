@@ -20,9 +20,12 @@ import java.util.UUID;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -44,7 +47,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Indexed
-@Table(name = "participants")
+@Table(name = "participant")
 @Access(value = AccessType.FIELD)
 @Audited
 public class ParticipantEntity extends BaseEntity {
@@ -54,18 +57,31 @@ public class ParticipantEntity extends BaseEntity {
 	@Getter
 	@Column(name = "participant_id")
 	private String id = UUID.randomUUID().toString();
+	
 	@Column(name = "first_name", nullable = false)
 	private String firstName;
+	
 	@Column(name = "middle_name")
 	private String middleName;
+	
 	@Column(name = "last_name", nullable = false)
 	private String lastName;
+	
 	@Column(name = "email", nullable = false, unique = true)
 	private String email;
+	
 	@Column(name = "password", nullable = false)
 	private String password;
+	
 	@Column(name = "avatar")
 	private String avatar;
-	@OneToOne
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "wallet_id", referencedColumnName = "id")
 	private WalletEntity wallet;
+	
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "box_id", referencedColumnName = "id")
+	private BoxEntity box;
+	
 }

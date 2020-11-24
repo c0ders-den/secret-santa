@@ -49,7 +49,7 @@ public class SecretSantaJPAConfiguration {
 		vendorAdapter.setGenerateDdl(true);
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource());
-		em.setPackagesToScan("io.sercret.santa.db.models");
+		em.setPackagesToScan("io.secret.santa.db.models");
 		em.setJpaVendorAdapter(vendorAdapter);
 		em.setJpaProperties(additionalProperties("org.hibernate.dialect.DerbyTenSevenDialect"));
 		return em;
@@ -58,7 +58,9 @@ public class SecretSantaJPAConfiguration {
 	@Bean
 	public DataSource dataSource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setUrl("");
+		ds.setUrl("jdbc:derby:secret-santa;create=true");
+		ds.setUsername("secretUsername");
+		ds.setPassword("secretPassword");
 		return ds;
 	}
 	
