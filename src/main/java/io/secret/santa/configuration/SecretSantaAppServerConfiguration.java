@@ -31,8 +31,21 @@ import lombok.ToString;
 @ToString
 public class SecretSantaAppServerConfiguration {
 
-	@JsonProperty("host")
-	private String host = "0.0.0.0";
+	@JsonProperty("protocol")
+	private String protocol;
+
+	@JsonProperty("addr")
+	private String address;
+
 	@JsonProperty("port")
-	private int port = 3000;
+	private Integer port;
+
+	@JsonProperty("cert-file")
+	private String certFile;
+
+	@JsonProperty("cert-key")
+	private String certKey;
+
+	@JsonProperty("enable-compression")
+	private Boolean compressd;
 }

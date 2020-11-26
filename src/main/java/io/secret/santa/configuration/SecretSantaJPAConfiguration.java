@@ -21,6 +21,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
@@ -42,25 +43,26 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaRepositories(basePackages = {"io.sercret.santa.repositories"})
 public class SecretSantaJPAConfiguration {
 
+	@Autowired
+	private SecretSantaApplicationInitConfiguration config;
+	
 	@Bean
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		vendorAdapter.setDatabase(Database.DERBY);
+		vendorAdapter.setDatabase(getDatabase());
 		vendorAdapter.setGenerateDdl(true);
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource());
 		em.setPackagesToScan("io.secret.santa.db.models");
 		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(additionalProperties("org.hibernate.dialect.DerbyTenSevenDialect"));
+		em.setJpaProperties(additionalProperties(getDialect()));
 		return em;
 	}
 	
 	@Bean
 	public DataSource dataSource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setUrl("jdbc:derby:secret-santa;create=true");
-		ds.setUsername("secretUsername");
-		ds.setPassword("secretPassword");
+		populateDataSource(ds);
 		return ds;
 	}
 	
@@ -76,6 +78,36 @@ public class SecretSantaJPAConfiguration {
 		return new PersistenceExceptionTranslationPostProcessor();
 	}
 	
+	private void populateDataSource(DriverManagerDataSource ds) {
+		if (null == ds) return;
+		String url = null;
+		switch (config.getDBType()) {
+		case hsql:
+			ds.setDriverClassName("org.hsqldb.jdbc.JDBCDriver");
+			url = "jdbc:hsqldb:file:" + config.getDBPath(); 
+			break;
+		case postgres:
+			ds.setDriverClassName("org.postgresql.Driver");
+			url = "jdbc:postgresql://" + config.getDBHost() + "/" + config.getDBName();
+			ds.setSchema("public");
+			break;
+		case mysql:
+			ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+			url = "jdbc:mysql://" + config.getDBHost() + "/" + config.getDBName();
+			ds.setSchema(config.getDBName());
+			break;
+		case mssql:
+			ds.setDriverClassName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+			url = "jdbc:sqlserver://" + config.getDBHost() + ";databaseName=" + config.getDBName();
+			break;
+		default:
+			break;
+		}
+		ds.setUrl(url);
+		ds.setUsername(config.getDBUsername());
+		ds.setPassword(config.getDBPassword());
+	}
+	
 	private Properties additionalProperties(final String dialect) {
 		Properties properties = new Properties();
 		properties.setProperty("hibernate.hbm2ddl.auto", "update");
@@ -85,5 +117,51 @@ public class SecretSantaJPAConfiguration {
 		properties.setProperty("hibernate.show_sql", "true");
 		properties.setProperty("hibernate.format_sql", "true");
 		return properties;
+	}
+	
+	private String getDialect() {
+		String dialect = null;
+		switch (config.getDBType()) {
+		case hsql:
+			dialect = "org.hibernate.dialect.HSQLDialect";
+			break;
+		case postgres:
+			dialect = "org.hibernate.dialect.PostgreSQL95Dialect";
+			break;
+		case mysql:
+			dialect = "org.hibernate.dialect.MySQL5InnoDBDialect";
+			break;
+		case mssql:
+			dialect = "org.hibernate.dialect.SQLServerDialect";
+			break;	
+		case derby:
+			dialect = "org.hibernate.dialect.DerbyTenSevenDialect";
+		default:
+			break;
+		}
+		return dialect;
+	}
+	
+	private Database getDatabase() {
+		Database db = null;
+		switch (config.getDBType()) {
+		case hsql:
+			db = Database.HSQL;
+			break;
+		case postgres:
+			db = Database.POSTGRESQL;
+			break;
+		case mysql:
+			db = Database.MYSQL;
+			break;
+		case mssql:
+			db = Database.SQL_SERVER;
+			break;
+		case derby:
+			db = Database.DERBY;
+		default:
+			break;
+		}
+		return db;
 	}
 }

@@ -16,36 +16,11 @@
  */
 package io.secret.santa.configuration;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 /**
  * @author Arpan Mukhopadhyay
  *
  */
-@Getter
-@Setter
-@ToString
-public class SecretSantaDBServerConfiguration {
+public enum AppMode {
 
-	@JsonProperty("type")
-	private DBType type;
-	
-	@JsonProperty("host")
-	private String host;
-	
-	@JsonProperty("name")
-	private String name;
-	
-	@JsonProperty("user")
-	private String username;
-	
-	@JsonProperty("password")
-	private String password;
-	
-	@JsonProperty("path")
-	private String path;
+	production, development, testing
 }

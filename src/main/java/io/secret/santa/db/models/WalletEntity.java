@@ -53,13 +53,16 @@ public class WalletEntity extends BaseEntity {
 	
 	//Secret santa coins. Used to buy common items.
 	@Column(name = "coins")
-	private int coins = 100;
+	private int coins;
 	//Secret santa currency. Used to buy special items
 	@Column(name = "currency")
-	private int currency = 0;
+	private int currency;
+	//Secret santa gems
+	@Column(name = "gems")
+	private int gems;
 	//Secret santa key. Used to buy exclusive items.
 	@Column(name = "keys")
-	private int keys = 0;
+	private int keys;
 	
 	@OneToOne(mappedBy = "wallet")
 	private ParticipantEntity participant;

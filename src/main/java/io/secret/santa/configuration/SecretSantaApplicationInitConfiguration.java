@@ -25,15 +25,110 @@ import org.springframework.stereotype.Component;
 @Component
 public interface SecretSantaApplicationInitConfiguration {
 
-	/**
-	 * 
-	 * @return
-	 */
-	String getServerHost();
+	String OPTIONS_CONFIG_FILE = "config";
+	String DEFAULT_CONFIG_FILE = "config/default.yaml";
+	Integer DEFAULT_HTTP_PORT = 3000;
+	String DEFAULT_HTTP_ADDR = "127.0.0.1";
 	
 	/**
 	 * 
 	 * @return
 	 */
-	int getServerPort();
+	AppMode getAppMode();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getName();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getAppBase();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getData();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getLogs();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getProtocol();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getHttpAddress();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	int getHttpPort();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	boolean enableCompression();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getCertFile();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getCertKey();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	DBType getDBType();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getDBHost();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getDBName();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getDBUsername();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getDBPassword();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	String getDBPath();
 }

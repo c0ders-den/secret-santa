@@ -28,6 +28,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.secret.santa.ConfigParsingException;
 import io.secret.santa.IllegalConfigurationException;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
 /**
@@ -45,13 +46,17 @@ public class SecretSantaApplicationInitConfigurationImpl implements SecretSantaA
 	private String dbUser;
 	private String dbPass;
 	
+	private AppConfigProperties appProperties = new AppConfigProperties();
+	private ServerConfigProperties srvProperties = new ServerConfigProperties();
+	private DatabaseConfigProperties dbProperties = new DatabaseConfigProperties();
+	
 	/**
 	 * 
 	 * @param args
 	 */
 	public SecretSantaApplicationInitConfigurationImpl(ApplicationArguments args) {
 		long start = System.nanoTime();
-		loadProperties(args);
+		parseConfig(args);
 		long tt = System.nanoTime() - start;
 		logger.info("Configuration loaded in {} ms", TimeUnit.MILLISECONDS.convert(tt, TimeUnit.NANOSECONDS));
 	}
@@ -61,13 +66,14 @@ public class SecretSantaApplicationInitConfigurationImpl implements SecretSantaA
 	 * 
 	 * @param args the argument
 	 */
-	private void loadProperties(ApplicationArguments args) {
+	private void parseConfig(ApplicationArguments args) {
 		List<String> configFileOption = args.getOptionValues("config");
+		String configFileName = null;
 		if (null == configFileOption || configFileOption.size() == 0) {
-			loadDefaultProperties();
-			return;
+			configFileName = DEFAULT_CONFIG_FILE;
+		} else {
+			configFileName = configFileOption.get(0);
 		}
-		String configFileName = configFileOption.get(0);
 		if (null == configFileName || configFileName.isBlank()) {
 			logger.error("Please provide a config file after --config or remove the --config option to run the server with default host and port");
 			throw new IllegalConfigurationException("Invalid value for --config option.");
@@ -83,31 +89,192 @@ public class SecretSantaApplicationInitConfigurationImpl implements SecretSantaA
 		ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 		mapper.findAndRegisterModules();
 		try {
-			SecretSantaConfigTemplate configTemplate = mapper.readValue(configFile, SecretSantaConfigTemplate.class);
-			this.serverHost = configTemplate.getServer().getHost();
-			this.serverPort = configTemplate.getServer().getPort();
+			final SecretSantaConfigTemplate configTemplate = mapper.readValue(configFile, SecretSantaConfigTemplate.class);
+			populateProperties(configTemplate);
 		} catch (Exception e) {
 			throw new ConfigParsingException("Can not parse file at " + configFile.getAbsolutePath(), e);
 		}
-		loadDBProperties();
 	}
 	
 	/**
-	 * Loads the default properties for host and port
+	 * 
+	 * @param template
 	 */
-	private void loadDefaultProperties() {
-		this.serverHost = "0.0.0.0";
-		this.serverPort = 3000;
-		loadDBProperties();
+	private void populateProperties(final SecretSantaConfigTemplate template) {
+		populateAppProperties(template, appProperties);
+		populateServerProperties(template, srvProperties);
+		populateDBProperties(template, dbProperties);
 	}
 	
 	/**
-	 * Loads the DB property details
+	 * 
+	 * @param t
+	 * @param conf
 	 */
-	private void loadDBProperties() {
-		this.dbHost = "127.0.0.1";
-		this.dbPort = 0;
-		this.dbUser = "";
-		this.dbPass = "";
+	private void populateAppProperties(final SecretSantaConfigTemplate t, AppConfigProperties conf) {
+		conf.setAppMode(t.getAppMode());
+		conf.setAppName(t.getAppName());
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @param conf
+	 */
+	private void populateServerProperties(final SecretSantaConfigTemplate t, ServerConfigProperties conf) {
+		final SecretSantaAppServerConfiguration srvConf = t.getServer();
+		String addr = null == srvConf.getAddress() || srvConf.getAddress().strip().isBlank() ? DEFAULT_HTTP_ADDR
+				: srvConf.getAddress();
+		conf.setAddress(addr);
+		Integer port = null == srvConf.getPort() ? DEFAULT_HTTP_PORT : srvConf.getPort();
+		conf.setPort(port);
+		conf.setProtocol(srvConf.getProtocol());
+		conf.setCompressed(srvConf.getCompressd());
+		conf.setCertFile(srvConf.getCertFile());
+		conf.setCertKey(srvConf.getCertKey());
+	}
+	
+	/**
+	 * 
+	 * @param t
+	 * @param conf
+	 */
+	private void populateDBProperties(final SecretSantaConfigTemplate t, DatabaseConfigProperties conf) {
+		final SecretSantaDBServerConfiguration dbConf = t.getDb();
+		conf.setType(dbConf.getType());
+		conf.setHost(dbConf.getHost());
+		conf.setName(dbConf.getName());
+		conf.setUsername(dbConf.getUsername());
+		conf.setPassword(unwrapQuotedString(dbConf.getPassword()));
+		conf.setPath(dbConf.getPath());
+	}
+	
+	/**
+	 * 
+	 * @param s
+	 * @return
+	 */
+	private String unwrapQuotedString(String s) {
+		if (null == s || s.isBlank()) return s;
+		s = s.strip();
+		boolean b = s.startsWith("'");
+		if (b && s.endsWith("'")) {
+			s = s.substring(1, s.length() - 1);
+		}
+		return s;
+	}
+	
+	@Getter
+	@Setter
+	private class AppConfigProperties {
+		private AppMode appMode;
+		private String appName;
+	}
+
+	@Getter
+	@Setter
+	private class ServerConfigProperties {
+		private String protocol;
+		private String address;
+		private int port;
+		private String certFile;
+		private String certKey;
+		private boolean compressed;
+	}
+	
+	@Getter
+	@Setter
+	private class DatabaseConfigProperties {
+		private DBType type;
+		private String host;
+		private String name;
+		private String username;
+		private String password;
+		private String path;
+	}
+	
+	@Override
+	public AppMode getAppMode() {
+		return appProperties.getAppMode();
+	}
+
+	@Override
+	public String getName() {
+		return appProperties.getAppName();
+	}
+
+	@Override
+	public String getAppBase() {
+		return null;
+	}
+
+	@Override
+	public String getData() {
+		return null;
+	}
+
+	@Override
+	public String getLogs() {
+		return null;
+	}
+
+	@Override
+	public String getProtocol() {
+		return srvProperties.getProtocol();
+	}
+
+	@Override
+	public String getHttpAddress() {
+		return srvProperties.getAddress();
+	}
+
+	@Override
+	public int getHttpPort() {
+		return srvProperties.getPort();
+	}
+
+	@Override
+	public boolean enableCompression() {
+		return srvProperties.isCompressed();
+	}
+
+	@Override
+	public String getCertFile() {
+		return srvProperties.getCertFile();
+	}
+
+	@Override
+	public String getCertKey() {
+		return srvProperties.getCertKey();
+	}
+	
+	@Override
+	public DBType getDBType() {
+		return dbProperties.getType();
+	}
+
+	@Override
+	public String getDBHost() {
+		return dbProperties.getHost();
+	}
+
+	@Override
+	public String getDBName() {
+		return dbProperties.getName();
+	}
+
+	@Override
+	public String getDBUsername() {
+		return dbProperties.getUsername();
+	}
+
+	@Override
+	public String getDBPassword() {
+		return dbProperties.getPassword();
+	}
+
+	@Override
+	public String getDBPath() {
+		return dbProperties.getPath();
 	}
 }

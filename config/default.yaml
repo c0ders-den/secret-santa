@@ -1,0 +1,25 @@
+# Either 'production' or 'development'
+app-mode: development
+# Can be any name. This name will be shown in the title bar
+app-name: secret-santa
+#data:
+#  path: data
+#log:
+#  level: debug
+#  path: logs
+server:
+  protocol: http
+  addr:
+  cert-file:
+  cert-key:
+  enable-compression: true
+database:
+  # Either "postgres", "mysql", "sqlite3" or "hsql". In production DO NOT use the last one.
+  type: postgres
+  host: 127.0.0.1:5432
+  name: secret-santa
+  user: santaUser
+  # If password contains # then wrap it with three single quote (')
+  password: czKak7q3sOHfdzne9EI
+  # For "sqlite3" and "hsql" only
+  path: db/hourglass

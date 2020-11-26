@@ -56,7 +56,7 @@ public class BoxEntity extends BaseEntity {
 	private String id = RandomStringUtils.randomAlphabetic(11, 19);
 	
 	@Column(name = "capacity")
-	private int capacity = 5;
+	private int capacity;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "box")
 	private List<ItemEntity> items;

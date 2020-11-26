@@ -73,7 +73,7 @@ public class SecretSantaApplicationConfiguration {
 	
 	private Connector addConnectors(Server server, SecretSantaApplicationInitConfiguration appInitConfig) {
 		ServerConnector httpConnector = new ServerConnector(server);
-		httpConnector.setPort(appInitConfig.getServerPort());
+		httpConnector.setPort(appInitConfig.getHttpPort());
 		return httpConnector;
 	}
 }

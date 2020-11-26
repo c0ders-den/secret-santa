@@ -31,6 +31,12 @@ import lombok.ToString;
 @ToString
 public class SecretSantaConfigTemplate {
 
+	@JsonProperty("app-mode")
+	private AppMode appMode;
+	
+	@JsonProperty("app-name")
+	private String appName;
+	
 	@JsonProperty("server")
 	private SecretSantaAppServerConfiguration server;
 	
