@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"io.sercret.santa.repositories"})
+@EnableJpaRepositories(basePackages = {"io.secret.santa.repository"})
 public class SecretSantaJPAConfiguration {
 
 	@Autowired

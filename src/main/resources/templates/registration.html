@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+		<title>Register page</title>
+	</head>
+	<body>
+		<form action="#" th:action="@{/register.html}" th:object="${registrationModel}" method="POST">
+			<input type="email" id="email" th:field="*{email}" placeholder="Enter email" autofocus="autofocus" />
+			<button type="submit">Register</button>
+		</form>
+	</body>
+</html>

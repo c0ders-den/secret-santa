@@ -16,17 +16,14 @@
  */
 package io.secret.santa.db.models;
 
-import java.util.UUID;
-
 import javax.persistence.Access;
 import javax.persistence.AccessType;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.hibernate.envers.Audited;
 import org.springframework.stereotype.Indexed;
 
@@ -35,8 +32,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * This class represents a user.
- * 
  * @author Arpan Mukhopadhyay
  *
  */
@@ -45,39 +40,23 @@ import lombok.Setter;
 @Setter
 @Entity
 @Indexed
-@Table(name = "participant")
+@Table(name = "auth")
 @Access(value = AccessType.FIELD)
 @Audited
-public class ParticipantEntity extends BaseEntity {
+public class UserAuthEntity extends BaseEntity {
 
-	private static final long serialVersionUID = -2252016955309919713L;
+	private static final long serialVersionUID = 6704658936537322676L;
 	
 	@Getter
-	@Column(name = "participant_id")
-	private String id = UUID.randomUUID().toString();
+	@Column(name = "auth_id")
+	private String authId = RandomStringUtils.randomAlphanumeric(11, 19);
 	
-	@Column(name = "first_name", nullable = false)
-	private String firstName;
+	@Column(name = "auth_email", unique = true, nullable = false)
+	private String authEmail;
 	
-	@Column(name = "middle_name")
-	private String middleName;
+	@Column(name = "auth_password", nullable = false)
+	private String authPass;
 	
-	@Column(name = "last_name", nullable = false)
-	private String lastName;
-	
-	@Column(name = "avatar")
-	private String avatar;
-	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "auth_id", referencedColumnName = "id")
-	private UserAuthEntity auth;
-	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "wallet_id", referencedColumnName = "id")
-	private WalletEntity wallet;
-	
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "box_id", referencedColumnName = "id")
-	private BoxEntity box;
-	
+	@OneToOne(mappedBy = "auth")
+	private ParticipantEntity participant;
 }
